@@ -4,6 +4,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
+import com.jayaspiya.retrofittry.model.User
+import com.jayaspiya.retrofittry.repo.UserRepo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var etFname: EditText
@@ -35,6 +43,24 @@ class RegisterActivity : AppCompatActivity() {
                 etPassword.requestFocus()
                 return@setOnClickListener
             } else {
+                val user = User(fname=fname, lname = lname, username = username, password = password)
+                CoroutineScope(Dispatchers.IO).launch{
+                    try {
+                        val repo = UserRepo()
+                        val response = repo.registerUser(user)
+                        if(response.success == true){
+                            withContext(Dispatchers.Main){
+                                Toast.makeText(this@RegisterActivity, "User Registered", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        }
+                    }
+                    catch (ex: Exception){
+                        withContext(Dispatchers.Main){
+                            Toast.makeText(this@RegisterActivity, "error $ex", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
         }
     }
